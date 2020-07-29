@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AccountController {
 
     @GetMapping("/sign-up")
-    public String signupForm(Model model){
+    public String signUpForm(Model model){
+//        model.addAttribute("signUpForm", new SignUpForm());
+        model.addAttribute(new SignUpForm()); //class 이름과 동일한 attribute를 사용하면 생략 가능
         return "account/sign-up";
     }
 }
