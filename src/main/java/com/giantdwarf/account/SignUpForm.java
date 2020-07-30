@@ -1,34 +1,26 @@
 package com.giantdwarf.account;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 @Data
 public class SignUpForm {
+    @NotBlank
+    @Length(min = 3, max = 20)
+    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-z0-9_-]{3,20}$")
     private String nickname;
+
+    @Email
+    @NotBlank
     private String email;
+
+    @NotBlank
+    @Length(min = 8, max = 50)
     private String password;
 
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    //getter setter삭제 lombok 설정 오류로 @Data에서 가져오지못했었음
 }
