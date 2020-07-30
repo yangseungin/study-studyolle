@@ -4,6 +4,7 @@ import com.giantdwarf.domain.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
@@ -13,6 +14,7 @@ import javax.validation.Valid;
 public class AccountService {
     private final AccountRepository accountRepository;
     private final JavaMailSender javaMailSender;
+    private final PasswordEncoder passwordEncoder;
 
     public void processNewAccount(SignUpForm signUpForm) {
         Account savedAccount = saveNewAccount(signUpForm);
@@ -24,7 +26,7 @@ public class AccountService {
         Account account = new Account().builder()
                 .nickname(signUpForm.getNickname())
                 .email(signUpForm.getEmail())
-                .password(signUpForm.getPassword())
+                .password(passwordEncoder.encode(signUpForm.getPassword()))
                 .studyCreatedByWeb(true)
                 .studyUpdatedByWeb(true)
                 .studyEnrollmentResultByWeb(true)
