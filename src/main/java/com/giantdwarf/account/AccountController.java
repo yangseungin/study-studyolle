@@ -1,6 +1,9 @@
 package com.giantdwarf.account;
 
+import com.giantdwarf.domain.Account;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -16,6 +19,8 @@ import javax.validation.Valid;
 public class AccountController {
 
     private final SignUpFormValidator signUpFormValidator;
+    private final AccountRepository accountRepository;
+    private final JavaMailSender javaMailSender;
 
     @InitBinder("signUpForm") // SignUpForm 데이터를 받을떄 바인딩해줌.
     public void initBinder(WebDataBinder webDataBinder){
@@ -34,6 +39,25 @@ public class AccountController {
         if (errors.hasErrors()) {
             return "account/sign-up";
         }
+        //계정 저장후
+        Account account = new Account().builder()
+                .nickname(signUpForm.getNickname())
+                .email(signUpForm.getEmail())
+                .password(signUpForm.getPassword())
+                .studyCreatedByWeb(true)
+                .studyUpdatedByWeb(true)
+                .studyEnrollmentResultByWeb(true)
+                .build();
+
+        Account savedAccount = accountRepository.save(account);
+        savedAccount.generateEmailCheckToken();
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setSubject("스터디올래, 회원 가입 인증");
+        simpleMailMessage.setTo(savedAccount.getEmail());
+        simpleMailMessage.setText("/check-email-token?token="+savedAccount.getEmailCheckToken()+"&email="+savedAccount.getEmail());
+
+        //이메일 보내기
+        javaMailSender.send(simpleMailMessage);
 
         return "redirect:/";
     }
