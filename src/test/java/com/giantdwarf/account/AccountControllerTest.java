@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Transactional
 @SpringBootTest
 @AutoConfigureMockMvc
 class AccountControllerTest {
@@ -32,6 +34,36 @@ class AccountControllerTest {
 
     @MockBean
     JavaMailSender javaMailSender;
+
+    @Test
+    public void 인증메일확인_입력값오류() throws Exception {
+        mockMvc.perform(get("/check-email-token")
+                .param("token", "asgaefdf")
+                .param("email", "email@email.com"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("error"))
+                .andExpect(view().name("account/checked-email"));
+    }
+
+    @Test
+    public void 인증메일확인_입력값정상() throws Exception {
+        Account account = Account.builder()
+                .email("test@gmail.com")
+                .password("qwerasdf")
+                .nickname("yang")
+                .build();
+        Account savedAccount = accountRepository.save(account);
+        savedAccount.generateEmailCheckToken();
+
+        mockMvc.perform(get("/check-email-token")
+                .param("token", savedAccount.getEmailCheckToken())
+                .param("email", savedAccount.getEmail()))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeDoesNotExist("error"))
+                .andExpect(model().attributeExists("nickname"))
+                .andExpect(model().attributeExists("numberOfUser"))
+                .andExpect(view().name("account/checked-email"));
+    }
 
     @Test
     public void 회원가입화면_확인() throws Exception {
@@ -65,7 +97,7 @@ class AccountControllerTest {
 
         Account account = accountRepository.findByEmail("rhfpdk12@gmail.com");
         assertNotNull(account);
-        assertNotEquals(account.getPassword(),"qwerasdf");
+        assertNotEquals(account.getPassword(), "qwerasdf");
         assertNotNull(account.getEmailCheckToken());
         assertTrue(accountRepository.existsByEmail("rhfpdk12@gmail.com"));
         then(javaMailSender).should().send(any(SimpleMailMessage.class));
