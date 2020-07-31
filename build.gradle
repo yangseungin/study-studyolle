@@ -17,8 +17,19 @@ configurations {
 repositories {
     mavenCentral()
 }
+task npmInstall(type:Exec) {
+    workingDir 'src/main/resources/static'
+    commandLine 'npm', 'install'
+    standardOutput = new ByteArrayOutputStream()
+    ext.output = {
+        return standardOutput.toString()
+    }
+}
+
+
 
 dependencies {
+//    compile group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: '2.3.2.RELEASE'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-security'
