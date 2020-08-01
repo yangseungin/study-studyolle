@@ -25,7 +25,6 @@ public class AccountService {
     @Transactional
     public Account processNewAccount(SignUpForm signUpForm) {
         Account savedAccount = saveNewAccount(signUpForm);
-        savedAccount.generateEmailCheckToken();
         sendSignUpConfirmEmail(savedAccount);
         return savedAccount;
     }
@@ -43,7 +42,10 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-    private void sendSignUpConfirmEmail(Account savedAccount) {
+    public void sendSignUpConfirmEmail(Account savedAccount) {
+        //메일 전송 토큰생성
+        savedAccount.generateEmailCheckToken();
+
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setSubject("스터디올래, 회원 가입 인증");
         simpleMailMessage.setTo(savedAccount.getEmail());
