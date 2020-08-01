@@ -13,10 +13,15 @@ public class MainController {
 
     @GetMapping("/")
     public String home(@CurrentUser Account account, Model model) {
-        if(!Objects.isNull(account)){
+        if (!Objects.isNull(account)) {
             model.addAttribute(account);
         }
 
         return "index";
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
     }
 }
