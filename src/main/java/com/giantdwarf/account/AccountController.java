@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Controller
 @RequiredArgsConstructor
-public class AccountController implements UserDetailsService {
+public class AccountController {
 
     private final SignUpFormValidator signUpFormValidator;
     private final AccountService accountService;
@@ -84,16 +84,4 @@ public class AccountController implements UserDetailsService {
         return "redirect:/";
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
-        Account account = accountRepository.findByEmail(emailOrNickname);
-        if (Objects.isNull(account)) {
-            account = accountRepository.findByNickname(emailOrNickname);
-        }
-        if (Objects.isNull(account)) {
-            throw new UsernameNotFoundException(emailOrNickname);
-        }
-
-        return new UserAccount(account);
-    }
 }
