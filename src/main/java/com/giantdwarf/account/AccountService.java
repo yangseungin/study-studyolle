@@ -1,6 +1,7 @@
 package com.giantdwarf.account;
 
 import com.giantdwarf.domain.Account;
+import com.giantdwarf.settings.Profile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -82,5 +83,17 @@ public class AccountService implements UserDetailsService {
     public void completeSignUp(Account account) {
         account.completeSignUp();
         login(account);
+    }
+
+    public void updateProfile(Account account, Profile profile) {
+        account.setUrl(profile.getUrl());
+        account.setOccupation(profile.getOccupation());
+        account.setLocation(profile.getLocation());
+        account.setBio(profile.getBio());
+
+        //TODO 이미지 수정
+       accountRepository.save(account);
+
+       //TODO 문제가 더있음
     }
 }

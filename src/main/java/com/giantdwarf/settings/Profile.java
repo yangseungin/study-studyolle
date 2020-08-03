@@ -2,8 +2,10 @@ package com.giantdwarf.settings;
 
 import com.giantdwarf.domain.Account;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class Profile {
     private String bio;
 
