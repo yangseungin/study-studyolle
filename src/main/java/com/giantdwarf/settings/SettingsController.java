@@ -29,6 +29,8 @@ public class SettingsController {
     static final String SETTINGS_PROFILE_URL = "/settings/profile";
     static final String SETTINGS_PASSWORD_VIEW_NAME = "/settings/password";
     static final String SETTINGS_PASSWORD_URL = "/settings/password";
+    static final String SETTINGS_NOTIFICATIONS_VIEW_NAME = "/settings/notifications";
+    static final String SETTINGS_NOTIFICATIONS_URL = "/settings/notifications";
 
     private final AccountService accountService;
 
@@ -63,13 +65,33 @@ public class SettingsController {
     @PostMapping(SETTINGS_PASSWORD_URL)
     public String updatePassword(@CurrentUser Account account, @Valid PasswordForm passwordForm, Errors errors,
                                  Model model, RedirectAttributes attributes) {
-        if(errors.hasErrors()){
+        if (errors.hasErrors()) {
             model.addAttribute(account);
             return SETTINGS_PASSWORD_VIEW_NAME;
         }
 
         accountService.updatePassword(account, passwordForm.getNewPassword());
-        attributes.addFlashAttribute("message","패스워드를 변경하였습니다.");
+        attributes.addFlashAttribute("message", "패스워드를 변경하였습니다.");
         return "redirect:" + SETTINGS_PASSWORD_URL;
+    }
+
+    @GetMapping(SETTINGS_NOTIFICATIONS_URL)
+    public String updateNotificationsForm(@CurrentUser Account account, Model model) {
+        model.addAttribute(model);
+        model.addAttribute(new Notifications(account));
+        return SETTINGS_NOTIFICATIONS_VIEW_NAME;
+    }
+
+    @PostMapping(SETTINGS_NOTIFICATIONS_URL)
+    public String updateNotification(@CurrentUser Account account, @Valid Notifications notifications, Errors errors
+            , Model model, RedirectAttributes attributes) {
+        if(errors.hasErrors()){
+            model.addAttribute(account);
+            return SETTINGS_NOTIFICATIONS_VIEW_NAME;
+        }
+        accountService.updateNotifications(account,notifications);
+        attributes.addFlashAttribute("message","알림 설정을 변경하였습니다.");
+
+        return "redirect:" + SETTINGS_NOTIFICATIONS_URL;
     }
 }

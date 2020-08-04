@@ -9,10 +9,12 @@ import java.util.UUID;
 @Entity
 @Getter @Setter
 @EqualsAndHashCode(of = "id")
-@Builder @AllArgsConstructor @NoArgsConstructor
+@Builder
+@AllArgsConstructor @NoArgsConstructor
 public class Account {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
     @Column(unique = true)
@@ -44,15 +46,15 @@ public class Account {
 
     private boolean studyCreatedByEmail;
 
-    private boolean studyCreatedByWeb;
+    private boolean studyCreatedByWeb = true;
 
     private boolean studyEnrollmentResultByEmail;
 
-    private boolean studyEnrollmentResultByWeb;
+    private boolean studyEnrollmentResultByWeb = true;
 
     private boolean studyUpdatedByEmail;
 
-    private boolean studyUpdatedByWeb;
+    private boolean studyUpdatedByWeb = true;
 
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
@@ -60,8 +62,8 @@ public class Account {
     }
 
     public void completeSignUp() {
-        this.emailVerified=true;
-        this.joinedAt=LocalDateTime.now();
+        this.emailVerified = true;
+        this.joinedAt = LocalDateTime.now();
     }
 
     public boolean isValidToken(String token) {
