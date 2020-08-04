@@ -1,8 +1,6 @@
-package com.giantdwarf.settings;
+package com.giantdwarf.settings.form;
 
-import com.giantdwarf.domain.Account;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 public class Notifications {

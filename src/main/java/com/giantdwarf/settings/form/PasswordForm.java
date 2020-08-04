@@ -1,4 +1,4 @@
-package com.giantdwarf.settings;
+package com.giantdwarf.settings.form;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;

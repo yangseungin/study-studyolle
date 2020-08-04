@@ -36,6 +36,45 @@ class SettingsControllerTest {
 
     @WithAccount("yang")
     @Test
+    public void 닉네임_수정폼() throws Exception {
+        String bio = "자기소개 수정.";
+        mockMvc.perform(get(SettingsController.SETTINGS_ACCOUNT_URL))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("nicknameForm"));
+    }
+
+    @WithAccount("yang")
+    @Test
+    public void 닉네임수정_입력값정상() throws Exception {
+        String newNickname = "yang2";
+        mockMvc.perform(post(SettingsController.SETTINGS_ACCOUNT_URL)
+                .param("nickname", newNickname)
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl(SettingsController.SETTINGS_ACCOUNT_URL))
+                .andExpect(flash().attributeExists("message"));
+
+        Account yang2 = accountRepository.findByNickname("yang2");
+        assertEquals(newNickname, yang2.getNickname());
+    }
+
+    @WithAccount("yang")
+    @Test
+    public void 닉네임수정_입력값비정상() throws Exception {
+        String newWrongNickname = "NicknameIsTooLongNicknameIsTooLongNicknameIsTooLongNicknameIsTooLongNicknameIsTooLong";
+        mockMvc.perform(post(SettingsController.SETTINGS_ACCOUNT_URL)
+                .param("nickname", newWrongNickname)
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name(SettingsController.SETTINGS_ACCOUNT_VIEW_NAME))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("nicknameForm"))
+                .andExpect(model().hasErrors());
+    }
+
+    @WithAccount("yang")
+    @Test
     public void 프로필_수정폼() throws Exception {
         String bio = "자기소개 수정.";
         mockMvc.perform(get(SettingsController.SETTINGS_PROFILE_URL))

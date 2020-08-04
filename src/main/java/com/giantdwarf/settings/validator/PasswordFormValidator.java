@@ -1,5 +1,6 @@
-package com.giantdwarf.settings;
+package com.giantdwarf.settings.validator;
 
+import com.giantdwarf.settings.form.PasswordForm;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
