@@ -1,23 +1,16 @@
 package com.giantdwarf.settings;
 
 import com.giantdwarf.account.AccountRepository;
-import com.giantdwarf.account.AccountService;
-import com.giantdwarf.account.SignUpForm;
 import com.giantdwarf.domain.Account;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.TestExecutionEvent;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithSecurityContext;
-import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -26,6 +19,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class SettingsControllerTest {
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Autowired
     MockMvc mockMvc;
@@ -80,4 +76,59 @@ class SettingsControllerTest {
         assertNull(yang.getBio());
     }
 
+    @WithAccount("yang")
+    @Test
+    public void 패스워드_수정폼() throws Exception {
+        mockMvc.perform(get(SettingsController.SETTINGS_PASSWORD_URL))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("passwordForm"));
+    }
+
+    @WithAccount("yang")
+    @Test
+    public void 패스워드수정_입력값정상() throws Exception {
+        String newPassword = "12345678";
+        mockMvc.perform(post(SettingsController.SETTINGS_PASSWORD_URL)
+                .param("newPassword", newPassword)
+                .param("newPasswordConfirm", newPassword)
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl(SettingsController.SETTINGS_PASSWORD_URL))
+                .andExpect(flash().attributeExists("message"));
+
+        Account yang = accountRepository.findByNickname("yang");
+        assertTrue(passwordEncoder.matches(newPassword, yang.getPassword()));
+    }
+
+    @WithAccount("yang")
+    @Test
+    public void 패스워드수정_입력값비정상_패스워드불일치() throws Exception {
+        String newPassword = "12345678";
+        mockMvc.perform(post(SettingsController.SETTINGS_PASSWORD_URL)
+                .param("newPassword", newPassword)
+                .param("newPasswordConfirm", "wrongpassword")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name(SettingsController.SETTINGS_PASSWORD_VIEW_NAME))
+                .andExpect(model().hasErrors())
+                .andExpect(model().attributeExists("passwordForm"))
+                .andExpect(model().attributeExists("account"));
+    }
+
+    @WithAccount("yang")
+    @Test
+    public void 패스워드수정_입력값비정상_입력조건위배() throws Exception {
+        String newPassword = "1234567";
+        mockMvc.perform(post(SettingsController.SETTINGS_PASSWORD_URL)
+                .param("newPassword", newPassword)
+                .param("newPasswordConfirm", "wrong")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name(SettingsController.SETTINGS_PASSWORD_VIEW_NAME))
+                .andExpect(model().attributeExists("passwordForm"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().hasErrors());
+    }
 }
+
