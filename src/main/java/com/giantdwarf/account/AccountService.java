@@ -40,22 +40,14 @@ public class AccountService implements UserDetailsService {
     }
 
     private Account saveNewAccount(@Valid SignUpForm signUpForm) {
-        Account account = new Account().builder()
-                .nickname(signUpForm.getNickname())
-                .email(signUpForm.getEmail())
-                .password(passwordEncoder.encode(signUpForm.getPassword()))
-                .studyCreatedByWeb(true)
-                .studyUpdatedByWeb(true)
-                .studyEnrollmentResultByWeb(true)
-                .build();
-
+        signUpForm.setPassword(passwordEncoder.encode(signUpForm.getPassword()));
+        Account account = modelMapper.map(signUpForm, Account.class);
+        //메일 전송 토큰생성
+        account.generateEmailCheckToken();
         return accountRepository.save(account);
     }
 
     public void sendSignUpConfirmEmail(Account savedAccount) {
-        //메일 전송 토큰생성
-        savedAccount.generateEmailCheckToken();
-
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setSubject("스터디올래, 회원 가입 인증");
         simpleMailMessage.setTo(savedAccount.getEmail());
