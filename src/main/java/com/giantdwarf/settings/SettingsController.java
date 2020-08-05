@@ -149,9 +149,21 @@ public class SettingsController {
         String title = tagForm.getTagTitle();
         Tag tag = tagRepository.findByTitle(title);
         if (Objects.isNull(tag)) {
-            tag = tagRepository.save(Tag.builder().title(tagForm.getTagTitle()).build());
+            tag = tagRepository.save(Tag.builder().title(title).build());
         }
         accountService.addTag(account, tag);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(SETTINGS_TAGS_URL + "/remove")
+    @ResponseBody
+    public ResponseEntity removeTags(@CurrentUser Account account, @RequestBody TagForm tagForm) {
+        String title = tagForm.getTagTitle();
+        Tag tag = tagRepository.findByTitle(title);
+        if (Objects.isNull(tag)) {
+            return ResponseEntity.badRequest().build();
+        }
+        accountService.removeTag(account, tag);
         return ResponseEntity.ok().build();
     }
 
