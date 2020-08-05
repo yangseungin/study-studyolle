@@ -3,24 +3,24 @@ package com.giantdwarf.settings;
 import com.giantdwarf.account.AccountService;
 import com.giantdwarf.account.CurrentUser;
 import com.giantdwarf.domain.Account;
-import com.giantdwarf.settings.form.NicknameForm;
-import com.giantdwarf.settings.form.Notifications;
-import com.giantdwarf.settings.form.PasswordForm;
-import com.giantdwarf.settings.form.Profile;
+import com.giantdwarf.domain.Tag;
+import com.giantdwarf.settings.form.*;
 import com.giantdwarf.settings.validator.NicknameValidator;
 import com.giantdwarf.settings.validator.PasswordFormValidator;
+import com.giantdwarf.tag.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.util.Objects;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -40,6 +40,7 @@ public class SettingsController {
     private final AccountService accountService;
     private final ModelMapper modelMapper;
     private final NicknameValidator nicknameValidator;
+    private final TagRepository tagRepository;
 
     @InitBinder("passwordForm")
     public void passwordFormInitBinder(WebDataBinder webDataBinder) {
@@ -133,9 +134,21 @@ public class SettingsController {
     }
 
     @GetMapping(SETTINGS_TAGS_URL)
-    public String updateTags(@CurrentUser Account account, Model model){
+    public String updateTags(@CurrentUser Account account, Model model) {
         model.addAttribute(account);
         return SETTINGS_TAGS_VIEW_NAME;
+    }
+
+    @PostMapping(SETTINGS_TAGS_URL + "/add")
+    @ResponseBody
+    public ResponseEntity addTags(@CurrentUser Account account, @RequestBody TagForm tagForm) {
+        String title = tagForm.getTagTitle();
+        Tag tag = tagRepository.findByTitle(title);
+        if (Objects.isNull(tag)) {
+            tag = tagRepository.save(Tag.builder().title(tagForm.getTagTitle()).build());
+        }
+        accountService.addTag(account, tag);
+        return ResponseEntity.ok().build();
     }
 
 }

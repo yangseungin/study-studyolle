@@ -1,6 +1,7 @@
 package com.giantdwarf.account;
 
 import com.giantdwarf.domain.Account;
+import com.giantdwarf.domain.Tag;
 import com.giantdwarf.settings.form.Notifications;
 import com.giantdwarf.settings.form.Profile;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -117,5 +119,10 @@ public class AccountService implements UserDetailsService {
         simpleMailMessage.setTo(account.getEmail());
         simpleMailMessage.setText("http://localhost:8080/login-by-email?token=" + account.getEmailCheckToken() + "&email=" + account.getEmail());
         javaMailSender.send(simpleMailMessage);
+    }
+
+    public void addTag(Account account, Tag tag) {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        byId.ifPresent(a -> a.getTags().add(tag));
     }
 }
