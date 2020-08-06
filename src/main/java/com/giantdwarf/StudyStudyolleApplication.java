@@ -7,7 +7,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class StudyStudyolleApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(StudyStudyolleApplication.class, args);
+        String profile = System.getProperty("spring.profiles.active");
+        if(profile == null) {
+            System.setProperty("spring.profiles.active", "dev");
+        }
+
+            SpringApplication.run(StudyStudyolleApplication.class, args);
     }
 
 }
