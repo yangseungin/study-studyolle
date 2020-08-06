@@ -99,7 +99,7 @@ public class SettingsController {
 
         accountService.updatePassword(account, passwordForm.getNewPassword());
         attributes.addFlashAttribute("message", "패스워드를 변경하였습니다.");
-        return "redirect:" + SETTINGS + PASSWORD;
+        return "redirect:/" + SETTINGS + PASSWORD;
     }
 
     @GetMapping(NOTIFICATIONS)
@@ -119,7 +119,7 @@ public class SettingsController {
         accountService.updateNotifications(account, notifications);
         attributes.addFlashAttribute("message", "알림 설정을 변경하였습니다.");
 
-        return "redirect:" + SETTINGS + NOTIFICATIONS;
+        return "redirect:/" + SETTINGS + NOTIFICATIONS;
     }
 
     @GetMapping(ACCOUNT)
