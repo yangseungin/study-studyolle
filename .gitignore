@@ -36,3 +36,6 @@ out/
 
 ### NPM ###
 src/main/resources/static/node_modules/
+
+### Mail account information
+src/main/resources/application-mail.yml
