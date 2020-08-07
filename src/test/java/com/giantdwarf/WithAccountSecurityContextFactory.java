@@ -1,7 +1,7 @@
 package com.giantdwarf;
 
 import com.giantdwarf.account.AccountService;
-import com.giantdwarf.account.SignUpForm;
+import com.giantdwarf.account.form.SignUpForm;
 import com.giantdwarf.settings.WithAccount;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

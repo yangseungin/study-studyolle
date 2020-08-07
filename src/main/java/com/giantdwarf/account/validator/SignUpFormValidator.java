@@ -1,5 +1,7 @@
-package com.giantdwarf.account;
+package com.giantdwarf.account.validator;
 
+import com.giantdwarf.account.AccountRepository;
+import com.giantdwarf.account.form.SignUpForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
