@@ -166,7 +166,7 @@ class SettingsControllerTest {
                 .param("newPasswordConfirm", newPassword)
                 .with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(SETTINGS + PASSWORD))
+                .andExpect(redirectedUrl(ROOT + SETTINGS + PASSWORD))
                 .andExpect(flash().attributeExists("message"));
 
         Account yang = accountRepository.findByNickname("yang");

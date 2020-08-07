@@ -1,6 +1,8 @@
 package com.giantdwarf.account;
 
 import com.giantdwarf.domain.Account;
+import com.giantdwarf.mail.EmailMessage;
+import com.giantdwarf.mail.EmailService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +37,7 @@ class AccountControllerTest {
     AccountRepository accountRepository;
 
     @MockBean
-    JavaMailSender javaMailSender;
+    EmailService emailService;
 
     @Test
     public void 인증메일확인_입력값오류() throws Exception {
@@ -107,7 +109,7 @@ class AccountControllerTest {
         assertNotEquals(account.getPassword(), "qwerasdf");
         assertNotNull(account.getEmailCheckToken());
         assertTrue(accountRepository.existsByEmail("rhfpdk12@gmail.com"));
-        then(javaMailSender).should().send(any(SimpleMailMessage.class));
+        then(emailService).should().sendEmail(any(EmailMessage.class));
 
     }
 
