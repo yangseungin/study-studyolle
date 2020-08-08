@@ -116,13 +116,14 @@ public class AccountController {
         attributes.addFlashAttribute("message", "이메일 인증 메일을 발송하였습니다");
         return "redirect:/email-login";
     }
+
     //login-by-email?token=" + account.getEmailCheckToken() + "&email=" + account.getEmail());
     @GetMapping("/login-by-email")
-    public String loginByEmail(String token, String email, Model model){
+    public String loginByEmail(String token, String email, Model model) {
         Account account = accountRepository.findByEmail(email);
         String view = "account/logged-in-by-email";
-        if(Objects.isNull(account) || !account.isValidToken(token)){
-            model.addAttribute("error","로그인할 수 없습니다.");
+        if (Objects.isNull(account) || !account.isValidToken(token)) {
+            model.addAttribute("error", "로그인할 수 없습니다.");
             return view;
         }
         accountService.login(account);
