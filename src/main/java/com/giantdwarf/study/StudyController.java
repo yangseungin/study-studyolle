@@ -30,8 +30,8 @@ public class StudyController {
     private final StudyRepository studyRepository;
 
     @InitBinder("studyForm")
-    public void studyFormInitBinder(WebDataBinder binder){
-        binder.addValidators(studyFormValidator);
+    public void studyFormInitBinder(WebDataBinder webDataBinder) {
+        webDataBinder.addValidators(studyFormValidator);
     }
 
     @GetMapping("/new-study")
@@ -42,23 +42,24 @@ public class StudyController {
     }
 
     @PostMapping("/new-study")
-    public String newStudySubmit(@CurrentUser Account account, @Valid StudyForm studyForm, Errors errors) {
-        if(errors.hasErrors()) {
+    public String newStudySubmit(@CurrentUser Account account, @Valid StudyForm studyForm, Errors errors, Model model) {
+        if (errors.hasErrors()) {
+            model.addAttribute(account);
             return "study/form";
         }
-        Study newStudy = studyService.createNewStudy(modelMapper.map(studyForm,Study.class),account);
+        Study newStudy = studyService.createNewStudy(modelMapper.map(studyForm, Study.class), account);
         return "redirect:/study/" + URLEncoder.encode(newStudy.getPath(), StandardCharsets.UTF_8);
     }
 
     @GetMapping("/study/{path}")
-    public String viewStudy(@CurrentUser Account account, @PathVariable String path, Model model){
+    public String viewStudy(@CurrentUser Account account, @PathVariable String path, Model model) {
         model.addAttribute(account);
         model.addAttribute(studyRepository.findByPath(path));
         return "study/view";
     }
 
     @GetMapping("/study/{path}/members")
-    public String viewStudyMembers(@CurrentUser Account account, @PathVariable String path, Model model){
+    public String viewStudyMembers(@CurrentUser Account account, @PathVariable String path, Model model) {
         model.addAttribute(account);
         model.addAttribute(studyRepository.findByPath(path));
         return "study/members";
