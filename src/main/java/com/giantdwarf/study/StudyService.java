@@ -2,6 +2,8 @@ package com.giantdwarf.study;
 
 import com.giantdwarf.domain.Account;
 import com.giantdwarf.domain.Study;
+import com.giantdwarf.domain.Tag;
+import com.giantdwarf.domain.Zone;
 import com.giantdwarf.study.form.StudyDescriptionForm;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -27,22 +29,18 @@ public class StudyService {
 
     public Study getStudyToUpdate(Account account, String path) {
         Study study = this.getStudy(path);
-        if(!account.isManagerOf(study)){    //권한체크
-            throw new AccessDeniedException("해당 기능을 사용할 수 없습니다.");
-        }
+        checkIfManager(account, study);
         return study;
     }
 
     public Study getStudy(String path) {
         Study study = this.studyRepository.findByPath(path);
-        if(Objects.isNull(study)){
-            throw new IllegalArgumentException(path + "에 해당하는 스터디가 없습니다.");
-        }
+        checkIfExistingStudy(path, study);
         return study;
     }
 
     public void updateStudyDescription(Study study, StudyDescriptionForm studyDescriptionform) {
-        modelMapper.map(studyDescriptionform,study);
+        modelMapper.map(studyDescriptionform, study);
 
     }
 
@@ -57,5 +55,47 @@ public class StudyService {
     public void disableStudyBanner(Study study) {
         study.setUseBanner(false);
 
+    }
+
+    public void addTag(Study study, Tag tag) {
+        study.getTags().add(tag);
+    }
+
+    public void removeTag(Study study, Tag tag) {
+        study.getTags().remove(tag);
+    }
+
+    public void addZone(Study study, Zone zone) {
+        study.getZones().add(zone);
+    }
+
+    public void removeZone(Study study, Zone zone) {
+        study.getZones().remove(zone);
+    }
+
+    public Study getStudyToUpdateTag(Account account, String path) {
+        Study study = studyRepository.findAccountWithTagsByPath(path);
+        checkIfExistingStudy(path, study);
+        checkIfManager(account, study);
+        return study;
+    }
+
+    public Study getStudyToUpdateZone(Account account, String path) {
+        Study study = studyRepository.findAccountWithZonesByPath(path);
+        checkIfExistingStudy(path, study);
+        checkIfManager(account, study);
+        return study;
+    }
+
+    private void checkIfManager(Account account, Study study) {
+        if (!account.isManagerOf(study)) {
+            throw new AccessDeniedException("해당 기능을 사용할 수 없습니다.");
+        }
+    }
+
+    private void checkIfExistingStudy(String path, Study study) {
+        if (Objects.isNull(study)) {
+            throw new IllegalArgumentException(path + "에 해당하는 스터디가 없습니다.");
+        }
     }
 }
