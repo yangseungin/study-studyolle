@@ -11,6 +11,7 @@ import com.giantdwarf.settings.form.*;
 import com.giantdwarf.settings.validator.NicknameValidator;
 import com.giantdwarf.settings.validator.PasswordFormValidator;
 import com.giantdwarf.tag.TagRepository;
+import com.giantdwarf.tag.TagService;
 import com.giantdwarf.zone.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -50,6 +51,7 @@ public class SettingsController {
     private final TagRepository tagRepository;
     private final ObjectMapper objectMapper;
     private final ZoneRepository zoneRepository;
+    private final TagService tagService;
 
     @InitBinder("passwordForm")
     public void passwordFormInitBinder(WebDataBinder webDataBinder) {
@@ -157,11 +159,7 @@ public class SettingsController {
     @PostMapping(TAGS + "/add")
     @ResponseBody
     public ResponseEntity addTags(@CurrentUser Account account, @RequestBody TagForm tagForm) {
-        String title = tagForm.getTagTitle();
-        Tag tag = tagRepository.findByTitle(title);
-        if (Objects.isNull(tag)) {
-            tag = tagRepository.save(Tag.builder().title(title).build());
-        }
+        Tag tag = tagService.findOrCreateNew(tagForm.getTagTitle());
         accountService.addTag(account, tag);
         return ResponseEntity.ok().build();
     }
