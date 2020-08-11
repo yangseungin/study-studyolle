@@ -10,8 +10,8 @@
     <!--스터디메뉴   -->
     <div th:replace="fragments.html :: study-menu(studyMenu='members')"></div>
     <!--content-->
-    <div th:replace="fragments.html :: member-list(members=${study.managers}, isManager=${true})"></div>
-    <div th:replace="fragments.html :: member-list(members=${study.members}, isManager=${false})"></div>
+    <div th:replace="fragments.html :: member-list(members=${study.managers},isManager=${true})"></div>
+    <div th:replace="fragments.html :: member-list(members=${study.members},isManager=${false})"></div>
 
     <div th:replace="fragments.html :: footer"></div>
 </div>
