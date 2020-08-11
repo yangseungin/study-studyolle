@@ -120,7 +120,7 @@ public class StudySettingsController {
 
     @PostMapping("/tags/add")
     @ResponseBody
-    public ResponseEntity addTag(@CurrentUser Account account, @PathVariable String path, @RequestBody TagForm tagForm){
+    public ResponseEntity addTag(@CurrentUser Account account, @PathVariable String path, @RequestBody TagForm tagForm) {
         Study study = studyService.getStudyToUpdateTag(account, path);
         Tag tag = tagService.findOrCreateNew(tagForm.getTagTitle());
         studyService.addTag(study, tag);
@@ -129,10 +129,10 @@ public class StudySettingsController {
 
     @PostMapping("/tags/remove")
     @ResponseBody
-    public ResponseEntity removeTag(@CurrentUser Account account, @PathVariable String path, @RequestBody TagForm tagForm){
+    public ResponseEntity removeTag(@CurrentUser Account account, @PathVariable String path, @RequestBody TagForm tagForm) {
         Study study = studyService.getStudyToUpdateTag(account, path);
         Tag tag = tagRepository.findByTitle(tagForm.getTagTitle());
-        if(Objects.isNull(tag)){
+        if (Objects.isNull(tag)) {
             return ResponseEntity.badRequest().build();
         }
         studyService.removeTag(study, tag);
@@ -155,12 +155,13 @@ public class StudySettingsController {
 
         return "study/settings/zones";
     }
+
     @PostMapping("/zones/add")
     @ResponseBody
-    public ResponseEntity addZones(@CurrentUser Account account, @PathVariable String path, @RequestBody ZoneForm zoneForm){
+    public ResponseEntity addZones(@CurrentUser Account account, @PathVariable String path, @RequestBody ZoneForm zoneForm) {
         Study study = studyService.getStudyToUpdateZone(account, path);
         Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
-        if(Objects.isNull(zone)){
+        if (Objects.isNull(zone)) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -170,13 +171,62 @@ public class StudySettingsController {
 
     @PostMapping("/zones/remove")
     @ResponseBody
-    public ResponseEntity removeZones(@CurrentUser Account account, @PathVariable String path, @RequestBody ZoneForm zoneForm){
+    public ResponseEntity removeZones(@CurrentUser Account account, @PathVariable String path, @RequestBody ZoneForm zoneForm) {
         Study study = studyService.getStudyToUpdateZone(account, path);
         Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
-        if(Objects.isNull(zone)){
+        if (Objects.isNull(zone)) {
             return ResponseEntity.badRequest().build();
         }
         studyService.removeZone(study, zone);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/study")
+    public String studyForm(@CurrentUser Account account, @PathVariable String path, Model model) {
+        Study study = studyService.getStudyToUpdate(account, path);
+        model.addAttribute(account);
+        model.addAttribute(study);
+        return "study/settings/study";
+    }
+
+    @PostMapping("/study/publish")
+    public String publishStudy(@CurrentUser Account account, @PathVariable String path, RedirectAttributes attributes) {
+        Study study = studyService.getStudyToUpdateStatus(account, path);
+        studyService.publish(study);
+        attributes.addFlashAttribute("message", "스터디를 공개하였습니다.");
+        return "redirect:/study/" + getPath(path) + "/settings/study";
+    }
+
+    @PostMapping("/study/close")
+    public String closeStudy(@CurrentUser Account account, @PathVariable String path, RedirectAttributes attributes) {
+        Study study = studyService.getStudyToUpdateStatus(account, path);
+        studyService.close(study);
+        attributes.addFlashAttribute("message", "스터디를 종료하였습니다.");
+        return "redirect:/study/" + getPath(path) + "/settings/study";
+    }
+
+    @PostMapping("/recruit/start")
+    public String startRecruit(@CurrentUser Account account, @PathVariable String path, Model model, RedirectAttributes attributes) {
+        Study study = studyService.getStudyToUpdateStatus(account, path);
+        if (!study.canUpdateRecruiting()) {
+            attributes.addFlashAttribute("message", "1시간에 한번만 모집설정을 할 수 있습니다.");
+            return "redirect:/study/" + getPath(path) + "/settings/study";
+        }
+        studyService.startRecruit(study);
+        attributes.addFlashAttribute("message", "인원 모집을 시작합니다.");
+        return "redirect:/study/" + getPath(path) + "/settings/study";
+    }
+
+    @PostMapping("/recruit/stop")
+    public String stopRecruit(@CurrentUser Account account, @PathVariable String path, Model model, RedirectAttributes attributes) {
+        Study study = studyService.getStudyToUpdateStatus(account, path);
+        if (!study.canUpdateRecruiting()) {
+            attributes.addFlashAttribute("message", "1시간에 한번만 모집설정을 할 수 있습니다.");
+            return "redirect:/study/" + getPath(path) + "/settings/study";
+        }
+        studyService.stopRecruit(study);
+        attributes.addFlashAttribute("message", "인원 모집을 종료니다.");
+        return "redirect:/study/" + getPath(path) + "/settings/study";
+    }
+
 }
