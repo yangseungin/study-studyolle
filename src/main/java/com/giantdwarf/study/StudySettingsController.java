@@ -141,7 +141,7 @@ public class StudySettingsController {
         model.addAttribute(account);
         model.addAttribute(study);
 
-        model.addAttribute("tags", study.getZones().stream()
+        model.addAttribute("zones", study.getZones().stream()
                 .map(Zone::toString)
                 .collect(Collectors.toList()));
         List<String> allZones = zoneRepository.findAll().stream()
