@@ -52,11 +52,10 @@ class AccountControllerTest {
 
     @Test
     public void 인증메일확인_입력값정상() throws Exception {
-        Account account = Account.builder()
-                .email("rhfpdk12@gmail.com")
-                .password("qwerasdf12")
-                .nickname("yang")
-                .build();
+        Account account = new Account();
+        account.setEmail("rhfpdk12@gmail.com");
+        account.setPassword("qwerasdf12");
+        account.setNickname("yang");
         Account savedAccount = accountRepository.save(account);
         savedAccount.generateEmailCheckToken();
 

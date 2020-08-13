@@ -11,7 +11,7 @@ import java.util.UUID;
 @Entity
 @Getter @Setter
 @EqualsAndHashCode(of = "id")
-@Builder
+//@Builder
 @AllArgsConstructor @NoArgsConstructor
 public class Account {
 
