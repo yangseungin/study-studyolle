@@ -1,9 +1,13 @@
 package com.giantdwarf.study;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giantdwarf.account.AccountRepository;
 import com.giantdwarf.domain.Account;
 import com.giantdwarf.domain.Study;
+import com.giantdwarf.domain.Tag;
 import com.giantdwarf.settings.WithAccount;
+import com.giantdwarf.tag.TagRepository;
+import com.giantdwarf.zone.ZoneRepository;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +17,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -34,6 +40,12 @@ class StudyControllerTest {
     protected StudyRepository studyRepository;
     @Autowired
     protected AccountRepository accountRepository;
+    @Autowired
+    protected TagRepository tagRepository;
+    @Autowired
+    protected ZoneRepository zoneRepository;
+    @Autowired
+    protected ObjectMapper objectMapper;
 
     @AfterEach
     void afterEach() {
@@ -148,5 +160,12 @@ class StudyControllerTest {
         yang.setEmail(nickname + "@email.com");
         accountRepository.save(yang);
         return yang;
+    }
+    protected Tag findOrCreateNew(String tagTitle) {
+        Tag tag = tagRepository.findByTitle(tagTitle);
+        if(Objects.isNull(tag)){
+            tag = tagRepository.save(Tag.builder().title(tagTitle).build());
+        }
+        return tag;
     }
 }
