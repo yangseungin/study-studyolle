@@ -27,13 +27,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class StudyControllerTest {
 
     @Autowired
-    MockMvc mockMvc;
+    protected MockMvc mockMvc;
     @Autowired
-    StudyService studyService;
+    protected StudyService studyService;
     @Autowired
-    StudyRepository studyRepository;
+    protected StudyRepository studyRepository;
     @Autowired
-    AccountRepository accountRepository;
+    protected AccountRepository accountRepository;
 
     @AfterEach
     void afterEach() {
@@ -103,5 +103,50 @@ class StudyControllerTest {
                 .andExpect(view().name("study/view"))
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("study"));
+    }
+
+    @Test
+    @WithAccount("yang")
+    void 스터디_가입() throws Exception {
+        Account admin = createAccount("admin");
+        Study study = createStudy("test-study", admin);
+
+        mockMvc.perform(get("/study/" + study.getPath() + "/join"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + study.getPath() + "/members"));
+
+        Account yang = accountRepository.findByNickname("yang");
+        assertTrue(study.getMembers().contains(yang));
+    }
+
+    @Test
+    @WithAccount("yang")
+    void 스터디_탈퇴() throws Exception {
+        Account admin = createAccount("admin");
+        Study study = createStudy("test-study", admin);
+
+        Account yang = accountRepository.findByNickname("yang");
+        studyService.addMember(study, yang);
+
+        mockMvc.perform(get("/study/" + study.getPath() + "/leave"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/study/" + study.getPath() + "/members"));
+
+        assertFalse(study.getMembers().contains(yang));
+    }
+
+    protected Study createStudy(String path, Account manager) {
+        Study study = new Study();
+        study.setPath(path);
+        studyService.createNewStudy(study, manager);
+        return study;
+    }
+
+    protected Account createAccount(String nickname) {
+        Account yang = new Account();
+        yang.setNickname(nickname);
+        yang.setEmail(nickname + "@email.com");
+        accountRepository.save(yang);
+        return yang;
     }
 }
