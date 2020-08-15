@@ -1,5 +1,6 @@
 package com.giantdwarf.domain;
 
+import com.giantdwarf.account.UserAccount;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +21,7 @@ public class Event {
     private Study study;
 
     @ManyToOne
-    private Account createBy;
+    private Account createdBy;
 
     @Column(nullable = false)
     private String title;
