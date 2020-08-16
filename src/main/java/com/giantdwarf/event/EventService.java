@@ -30,4 +30,8 @@ public class EventService {
         modelMapper.map(eventForm,event);
         //TODO 선착순 모임은 추가인원을 자동으로 수락으로 올려줄것
     }
+
+    public void deleteEvent(Event event) {
+         eventRepository.delete(event);
+    }
 }

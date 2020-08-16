@@ -125,4 +125,18 @@ public class EventController {
         eventService.updateEvent(event, eventForm);
         return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
     }
+
+//    @PostMapping("/events/{id}/delete")
+    @DeleteMapping("/events/{id}")
+    public String cancleEvent(@CurrentUser Account account, @PathVariable String path, @PathVariable Long id) {
+        Study study = studyService.getStudyToUpdateStatus(account,path);
+        eventService.deleteEvent(eventRepository.findById(id).orElseThrow());
+        return "redirect:/study/" + study.getEncodedPath() + "/events";
+    }
+//    @PostMapping("/events/{id}/delete")
+//    public String cancleEvent2(@CurrentUser Account account, @PathVariable String path, @PathVariable Long id) {
+//        Study study = studyService.getStudyToUpdateStatus(account,path);
+//        eventService.deleteEvent(eventRepository.findById(id).orElseThrow());
+//        return "redirect:/study/" + study.getEncodedPath() + "/events";
+//    }
 }
