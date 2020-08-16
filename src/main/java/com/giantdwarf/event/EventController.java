@@ -6,9 +6,11 @@ import com.giantdwarf.domain.Event;
 import com.giantdwarf.domain.Study;
 import com.giantdwarf.event.form.EventForm;
 import com.giantdwarf.event.validator.EventValidator;
+import com.giantdwarf.study.StudyRepository;
 import com.giantdwarf.study.StudyService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.Banner;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -16,6 +18,9 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/study/{path}")
@@ -27,6 +32,7 @@ public class EventController {
     private final ModelMapper modelMapper;
     private final EventValidator eventValidator;
     private final EventRepository eventRepository;
+    private final StudyRepository studyRepository;
 
     @InitBinder("eventForm")
     public void initBinder(WebDataBinder webDataBinder) {
@@ -56,11 +62,35 @@ public class EventController {
         Event event = eventService.createEvent(modelMapper.map(eventForm, Event.class), study, account);
         return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
     }
+
     @GetMapping("events/{id}")
-    public String getEvent(@CurrentUser Account account, @PathVariable String path, @PathVariable Long id, Model model){
+    public String getEvent(@CurrentUser Account account, @PathVariable String path, @PathVariable Long id, Model model) {
         model.addAttribute(account);
         model.addAttribute(eventRepository.findById(id).orElseThrow());
-        model.addAttribute(studyService.getStudy(path));
+        model.addAttribute(studyRepository.findStudyWithManagersByPath(path));
         return "event/view";
+    }
+
+    @GetMapping("/events")
+    public String viewStudyEvents(@CurrentUser Account account, @PathVariable String path, Model model) {
+        Study study = studyService.getStudy(path);
+        model.addAttribute(account);
+        model.addAttribute(study);
+
+        List<Event> events = eventRepository.findByStudyOrderByStartDateTime(study);
+        List<Event> newEvents = new ArrayList<>();
+        List<Event> oldEvents = new ArrayList<>();
+
+        events.forEach(event -> {
+            if (event.getEndDateTime().isBefore(LocalDateTime.now())) {
+                oldEvents.add(event);
+            } else {
+                newEvents.add(event);
+            }
+        });
+
+        model.addAttribute("newEvents",newEvents);
+        model.addAttribute("oldEvents", oldEvents);
+        return "study/events";
     }
 }
