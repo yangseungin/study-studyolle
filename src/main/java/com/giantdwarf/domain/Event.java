@@ -8,16 +8,21 @@ import org.springframework.data.jpa.repository.EntityGraph;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @NamedEntityGraph(name = "Event.withEnrollments",
         attributeNodes = @NamedAttributeNode("enrollments"))
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @EqualsAndHashCode(of = "id")
 public class Event {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
 
     @ManyToOne
@@ -33,7 +38,7 @@ public class Event {
     private String description;
 
     @Column(nullable = false)
-    private LocalDateTime createDateTime;
+    private LocalDateTime createdDateTime;
 
     @Column(nullable = false)
     private LocalDateTime endEnrollmentDateTime;
@@ -48,7 +53,7 @@ public class Event {
     private Integer limitOfEnrollments;
 
     @OneToMany(mappedBy = "event")
-    private List<Enrollment> enrollments;
+    private List<Enrollment> enrollments = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private EventType eventType;
@@ -76,7 +81,7 @@ public class Event {
         return false;
     }
 
-    public  int numberOfRemainSpots(){
+    public int numberOfRemainSpots() {
         return this.limitOfEnrollments - (int) this.enrollments.stream().filter(Enrollment::isAccepted).count();
     }
 
@@ -94,4 +99,62 @@ public class Event {
         return this.enrollments.stream().filter(Enrollment::isAccepted).count();
     }
 
+    public void addEnrollment(Enrollment enrollment) {
+        this.enrollments.add(enrollment);
+        enrollment.setEvent(this);
+    }
+
+    public void removeEnrollment(Enrollment enrollment) {
+        this.enrollments.remove(enrollment);
+        enrollment.setEvent(null);
+    }
+
+    public boolean isAbleToAcceptWaitingEnrollment() {
+        return this.eventType == EventType.FCFS && this.limitOfEnrollments > this.getNumberOfAcceptedEnrollments();
+    }
+
+    public boolean canAccept(Enrollment enrollment) {
+        return this.eventType == EventType.CONFIRMATIVE
+                && this.enrollments.contains(enrollment)
+                && !enrollment.isAttended()
+                && !enrollment.isAccepted();
+    }
+
+    public boolean canReject(Enrollment enrollment) {
+        return this.eventType == EventType.CONFIRMATIVE
+                && this.enrollments.contains(enrollment)
+                && !enrollment.isAttended()
+                && enrollment.isAccepted();
+    }
+
+    private List<Enrollment> getWaitingList() {
+        return this.enrollments.stream().filter(enrollment -> !enrollment.isAccepted()).collect(Collectors.toList());
+    }
+
+    public void acceptWaitingList() {
+        if (this.isAbleToAcceptWaitingEnrollment()) {
+            List<Enrollment> waitingList = getWaitingList();
+            int numberToAccept = (int) Math.min(this.limitOfEnrollments - this.getNumberOfAcceptedEnrollments(), waitingList.size());
+            waitingList.subList(0, numberToAccept).forEach(e -> e.setAccepted(true));
+        }
+    }
+
+    public void acceptNextWaitingEnrollment() {
+        if (this.isAbleToAcceptWaitingEnrollment()) {
+            Enrollment enrollmentToAccept = this.getTheFirstWaitingEnrollment();
+            if (enrollmentToAccept != null) {
+                enrollmentToAccept.setAccepted(true);
+            }
+        }
+    }
+
+    private Enrollment getTheFirstWaitingEnrollment() {
+        for (Enrollment e : this.enrollments) {
+            if (!e.isAccepted()) {
+                return e;
+            }
+        }
+
+        return null;
+    }
 }

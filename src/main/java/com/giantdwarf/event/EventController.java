@@ -10,7 +10,6 @@ import com.giantdwarf.study.StudyRepository;
 import com.giantdwarf.study.StudyService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.Banner;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -126,17 +125,26 @@ public class EventController {
         return "redirect:/study/" + study.getEncodedPath() + "/events/" + event.getId();
     }
 
-//    @PostMapping("/events/{id}/delete")
+
     @DeleteMapping("/events/{id}")
     public String cancleEvent(@CurrentUser Account account, @PathVariable String path, @PathVariable Long id) {
         Study study = studyService.getStudyToUpdateStatus(account,path);
         eventService.deleteEvent(eventRepository.findById(id).orElseThrow());
         return "redirect:/study/" + study.getEncodedPath() + "/events";
     }
-//    @PostMapping("/events/{id}/delete")
-//    public String cancleEvent2(@CurrentUser Account account, @PathVariable String path, @PathVariable Long id) {
-//        Study study = studyService.getStudyToUpdateStatus(account,path);
-//        eventService.deleteEvent(eventRepository.findById(id).orElseThrow());
-//        return "redirect:/study/" + study.getEncodedPath() + "/events";
-//    }
+
+    @PostMapping("/events/{id}/enroll")
+    public String newEnrollment(@CurrentUser Account account, @PathVariable String path, @PathVariable Long id){
+        Study study = studyService.getStudyToEnroll(path);
+        eventService.newEnrollment(eventRepository.findById(id).orElseThrow(), account);
+        return "redirect:/study/" + study.getEncodedPath() + "/events/"+ id;
+    }
+
+    @PostMapping("/events/{id}/disenroll")
+    public String cancleEnrollment(@CurrentUser Account account, @PathVariable String path, @PathVariable Long id){
+        Study study = studyService.getStudyToEnroll(path);
+        eventService.cancelEnrollment(eventRepository.findById(id).orElseThrow(), account);
+        return "redirect:/study/" + study.getEncodedPath() + "/events/"+ id;
+    }
+
 }
