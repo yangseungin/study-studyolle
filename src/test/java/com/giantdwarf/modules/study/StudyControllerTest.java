@@ -1,50 +1,34 @@
 package com.giantdwarf.modules.study;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.giantdwarf.modules.account.AccountRepository;
+import com.giantdwarf.infra.MockMvcTest;
 import com.giantdwarf.modules.account.Account;
-import com.giantdwarf.modules.tag.Tag;
+import com.giantdwarf.modules.account.AccountFactory;
+import com.giantdwarf.modules.account.AccountRepository;
 import com.giantdwarf.modules.account.WithAccount;
 import com.giantdwarf.modules.tag.TagRepository;
 import com.giantdwarf.modules.zone.ZoneRepository;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Transactional
-@SpringBootTest
-@AutoConfigureMockMvc
-@RequiredArgsConstructor
-public
-class StudyControllerTest {
+@MockMvcTest
+public class StudyControllerTest {
 
-    @Autowired
-    protected MockMvc mockMvc;
-    @Autowired
-    protected StudyService studyService;
-    @Autowired
-    protected StudyRepository studyRepository;
-    @Autowired
-    protected AccountRepository accountRepository;
-    @Autowired
-    protected TagRepository tagRepository;
-    @Autowired
-    protected ZoneRepository zoneRepository;
-    @Autowired
-    protected ObjectMapper objectMapper;
+    @Autowired MockMvc mockMvc;
+    @Autowired StudyService studyService;
+    @Autowired StudyRepository studyRepository;
+    @Autowired AccountRepository accountRepository;
+    @Autowired TagRepository tagRepository;
+    @Autowired ZoneRepository zoneRepository;
+    @Autowired StudyFactory studyFactory;
+    @Autowired AccountFactory accountFactory;
 
     @AfterEach
     void afterEach() {
@@ -119,8 +103,8 @@ class StudyControllerTest {
     @Test
     @WithAccount("yang")
     void 스터디_가입() throws Exception {
-        Account admin = createAccount("admin");
-        Study study = createStudy("test-study", admin);
+        Account admin = accountFactory.createAccount("admin");
+        Study study = studyFactory.createStudy("test-study", admin);
 
         mockMvc.perform(get("/study/" + study.getPath() + "/join"))
                 .andExpect(status().is3xxRedirection())
@@ -133,8 +117,8 @@ class StudyControllerTest {
     @Test
     @WithAccount("yang")
     void 스터디_탈퇴() throws Exception {
-        Account admin = createAccount("admin");
-        Study study = createStudy("test-study", admin);
+        Account admin = accountFactory.createAccount("admin");
+        Study study = studyFactory.createStudy("test-study", admin);
 
         Account yang = accountRepository.findByNickname("yang");
         studyService.addMember(study, yang);
@@ -144,27 +128,5 @@ class StudyControllerTest {
                 .andExpect(redirectedUrl("/study/" + study.getPath() + "/members"));
 
         assertFalse(study.getMembers().contains(yang));
-    }
-
-    protected Study createStudy(String path, Account manager) {
-        Study study = new Study();
-        study.setPath(path);
-        studyService.createNewStudy(study, manager);
-        return study;
-    }
-
-    protected Account createAccount(String nickname) {
-        Account yang = new Account();
-        yang.setNickname(nickname);
-        yang.setEmail(nickname + "@email.com");
-        accountRepository.save(yang);
-        return yang;
-    }
-    protected Tag findOrCreateNew(String tagTitle) {
-        Tag tag = tagRepository.findByTitle(tagTitle);
-        if(Objects.isNull(tag)){
-            tag = tagRepository.save(Tag.builder().title(tagTitle).build());
-        }
-        return tag;
     }
 }

@@ -1,7 +1,7 @@
 package com.giantdwarf.modules.account;
 
 import com.giantdwarf.modules.account.form.SignUpForm;
-import com.giantdwarf.infra.config.AppProperties;
+import com.giantdwarf.infra.AppProperties;
 import com.giantdwarf.modules.tag.Tag;
 import com.giantdwarf.modules.zone.Zone;
 import com.giantdwarf.infra.mail.EmailMessage;

@@ -1,14 +1,12 @@
 package com.giantdwarf.modules.account;
 
+import com.giantdwarf.infra.MockMvcTest;
 import com.giantdwarf.infra.mail.EmailMessage;
 import com.giantdwarf.infra.mail.EmailService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,19 +19,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Transactional
-@SpringBootTest
-@AutoConfigureMockMvc
+@MockMvcTest
 class AccountControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    AccountRepository accountRepository;
-
-    @MockBean
-    EmailService emailService;
+    @Autowired private MockMvc mockMvc;
+    @Autowired AccountRepository accountRepository;
+    @MockBean EmailService emailService;
 
     @Test
     public void 인증메일확인_입력값오류() throws Exception {

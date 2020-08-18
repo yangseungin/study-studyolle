@@ -1,22 +1,20 @@
 package com.giantdwarf.modules.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.giantdwarf.modules.tag.Tag;
-import com.giantdwarf.modules.zone.Zone;
+import com.giantdwarf.infra.MockMvcTest;
 import com.giantdwarf.modules.account.form.TagForm;
 import com.giantdwarf.modules.account.form.ZoneForm;
+import com.giantdwarf.modules.tag.Tag;
 import com.giantdwarf.modules.tag.TagRepository;
+import com.giantdwarf.modules.zone.Zone;
 import com.giantdwarf.modules.zone.ZoneRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import static com.giantdwarf.modules.account.SettingsController.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,31 +23,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Transactional
-@SpringBootTest
-@AutoConfigureMockMvc
+@MockMvcTest
 class SettingsControllerTest {
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    AccountRepository accountRepository;
-
-    @Autowired
-    ObjectMapper objectMapper;
-
-    @Autowired
-    TagRepository tagRepository;
-
-    @Autowired
-    AccountService accountService;
-
-    @Autowired
-    ZoneRepository zoneRepository;
+    @Autowired PasswordEncoder passwordEncoder;
+    @Autowired MockMvc mockMvc;
+    @Autowired AccountRepository accountRepository;
+    @Autowired ObjectMapper objectMapper;
+    @Autowired TagRepository tagRepository;
+    @Autowired AccountService accountService;
+    @Autowired ZoneRepository zoneRepository;
 
     private Zone testZone = Zone.builder().city("test").localNameOfCity("테스트시").province("테스트주").build();
 

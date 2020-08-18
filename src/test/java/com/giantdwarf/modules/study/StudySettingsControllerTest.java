@@ -1,34 +1,48 @@
 package com.giantdwarf.modules.study;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.giantdwarf.infra.MockMvcTest;
 import com.giantdwarf.modules.account.Account;
-import com.giantdwarf.modules.tag.Tag;
+import com.giantdwarf.modules.account.AccountFactory;
+import com.giantdwarf.modules.account.AccountRepository;
 import com.giantdwarf.modules.account.WithAccount;
 import com.giantdwarf.modules.account.form.TagForm;
 import com.giantdwarf.modules.account.form.ZoneForm;
-import lombok.RequiredArgsConstructor;
+import com.giantdwarf.modules.tag.Tag;
+import com.giantdwarf.modules.tag.TagRepository;
+import com.giantdwarf.modules.zone.ZoneRepository;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Transactional
-@SpringBootTest
-@AutoConfigureMockMvc
-@RequiredArgsConstructor
-class StudySettingsControllerTest extends StudyControllerTest {
+@MockMvcTest
+class StudySettingsControllerTest {
+
+    @Autowired MockMvc mockMvc;
+    @Autowired StudyFactory studyFactory;
+    @Autowired AccountFactory accountFactory;
+    @Autowired AccountRepository accountRepository;
+    @Autowired StudyRepository studyRepository;
+    @Autowired StudyService studyService;
+    @Autowired ZoneRepository zoneRepository;
+    @Autowired TagRepository tagRepository;
+    @Autowired ObjectMapper objectMapper;
+
     @Test
     @WithAccount("yang")
     void 스터디소개수정폼_조회_실패_권한없는유저() throws Exception {
-        Account admin = createAccount("admin");
-        Study study = createStudy("test-study", admin);
+        Account admin = accountFactory.createAccount("admin");
+        Study study = studyFactory.createStudy("test-study", admin);
 
         mockMvc.perform(get("/study/" + study.getPath() + "/settings/description"))
                 .andExpect(status().isForbidden());
@@ -38,7 +52,7 @@ class StudySettingsControllerTest extends StudyControllerTest {
     @WithAccount("yang")
     void 스터디소개수정폼_조회_성공() throws Exception {
         Account yang = accountRepository.findByNickname("yang");
-        Study study = createStudy("test-study", yang);
+        Study study = studyFactory.createStudy("test-study", yang);
 
         mockMvc.perform(get("/study/" + study.getPath() + "/settings/description"))
                 .andExpect(status().isOk())
@@ -52,7 +66,7 @@ class StudySettingsControllerTest extends StudyControllerTest {
     @WithAccount("yang")
     void 스터디소개_수정_성공() throws Exception {
         Account yang = accountRepository.findByNickname("yang");
-        Study study = createStudy("test-study", yang);
+        Study study = studyFactory.createStudy("test-study", yang);
 
         String settingsDescriptionUrl = "/study/" + study.getPath() + "/settings/description";
         mockMvc.perform(post(settingsDescriptionUrl)
@@ -68,7 +82,7 @@ class StudySettingsControllerTest extends StudyControllerTest {
     @WithAccount("yang")
     void 스터디소개_수정_실패() throws Exception {
         Account yang = accountRepository.findByNickname("yang");
-        Study study = createStudy("test-study", yang);
+        Study study = studyFactory.createStudy("test-study", yang);
 
         String settingsDescriptionUrl = "/study/" + study.getPath() + "/settings/description";
         mockMvc.perform(post(settingsDescriptionUrl)
@@ -87,7 +101,7 @@ class StudySettingsControllerTest extends StudyControllerTest {
     @WithAccount("yang")
     void 스터디태그수정폼_조회_성공() throws Exception {
         Account yang = accountRepository.findByNickname("yang");
-        Study study = createStudy("test-study", yang);
+        Study study = studyFactory.createStudy("test-study", yang);
 
         String settingsTagsUrl = "/study/" + study.getPath() + "/settings/tags";
         mockMvc.perform(get(settingsTagsUrl))
@@ -103,7 +117,7 @@ class StudySettingsControllerTest extends StudyControllerTest {
     @WithAccount("yang")
     void 스터디태그수정폼_태그추가() throws Exception {
         Account yang = accountRepository.findByNickname("yang");
-        Study study = createStudy("test-study", yang);
+        Study study = studyFactory.createStudy("test-study", yang);
         TagForm tagForm = new TagForm();
         tagForm.setTagTitle("jpa");
 
@@ -113,16 +127,16 @@ class StudySettingsControllerTest extends StudyControllerTest {
                 .content(objectMapper.writeValueAsString(tagForm))
                 .with(csrf()))
                 .andDo(print())
-                .andExpect(status().isOk())        ;
+                .andExpect(status().isOk());
         Study studyToUpdate = studyService.getStudyToUpdate(yang, "test-study");
-        assertTrue(studyToUpdate.getTags().size()==1);
+        assertTrue(studyToUpdate.getTags().size() == 1);
     }
 
     @Test
     @WithAccount("yang")
     void 스터디태그수정폼_태그삭제() throws Exception {
         Account yang = accountRepository.findByNickname("yang");
-        Study study = createStudy("test-study", yang);
+        Study study = studyFactory.createStudy("test-study", yang);
         Tag jpa = findOrCreateNew("jpa");
         studyService.addTag(study, jpa);
 
@@ -135,16 +149,16 @@ class StudySettingsControllerTest extends StudyControllerTest {
                 .content(objectMapper.writeValueAsString(tagForm))
                 .with(csrf()))
                 .andDo(print())
-                .andExpect(status().isOk())        ;
+                .andExpect(status().isOk());
         Study studyToUpdate = studyService.getStudyToUpdate(yang, "test-study");
-        assertTrue(studyToUpdate.getTags().size()==0);
+        assertTrue(studyToUpdate.getTags().size() == 0);
     }
 
     @Test
     @WithAccount("yang")
     void 스터디지역수정폼_조회_성공() throws Exception {
         Account yang = accountRepository.findByNickname("yang");
-        Study study = createStudy("test-study", yang);
+        Study study = studyFactory.createStudy("test-study", yang);
 
         String settingsZonesUrl = "/study/" + study.getPath() + "/settings/zones";
         mockMvc.perform(get(settingsZonesUrl))
@@ -160,7 +174,7 @@ class StudySettingsControllerTest extends StudyControllerTest {
     @WithAccount("yang")
     void 스터디지역수정폼_지역추가() throws Exception {
         Account yang = accountRepository.findByNickname("yang");
-        Study study = createStudy("test-study", yang);
+        Study study = studyFactory.createStudy("test-study", yang);
         ZoneForm zoneForm = new ZoneForm();
         zoneForm.setZoneName("Suwon(수원시)/Gyeonggi");
 
@@ -173,17 +187,17 @@ class StudySettingsControllerTest extends StudyControllerTest {
                 .andExpect(status().isOk());
 
         Study studyToUpdate = studyService.getStudyToUpdateZone(yang, "test-study");
-        assertTrue(studyToUpdate.getZones().size()==1);
+        assertTrue(studyToUpdate.getZones().size() == 1);
     }
 
     @Test
     @WithAccount("yang")
     void 스터디지역수정폼_지역삭제() throws Exception {
         Account yang = accountRepository.findByNickname("yang");
-        Study study = createStudy("test-study", yang);
+        Study study = studyFactory.createStudy("test-study", yang);
         ZoneForm zoneForm = new ZoneForm();
         zoneForm.setZoneName("Suwon(수원시)/Gyeonggi");
-        studyService.addZone(study,zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName()));
+        studyService.addZone(study, zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName()));
 
         String settingsTagsUrl = "/study/" + study.getPath() + "/settings/zones/remove";
         mockMvc.perform(post(settingsTagsUrl)
@@ -194,6 +208,14 @@ class StudySettingsControllerTest extends StudyControllerTest {
                 .andExpect(status().isOk());
 
         Study studyToUpdate = studyService.getStudyToUpdateZone(yang, "test-study");
-        assertTrue(studyToUpdate.getZones().size()==0);
+        assertTrue(studyToUpdate.getZones().size() == 0);
+    }
+
+    protected Tag findOrCreateNew(String tagTitle) {
+        Tag tag = tagRepository.findByTitle(tagTitle);
+        if (Objects.isNull(tag)) {
+            tag = tagRepository.save(Tag.builder().title(tagTitle).build());
+        }
+        return tag;
     }
 }
