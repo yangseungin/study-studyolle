@@ -1,5 +1,6 @@
 package com.giantdwarf.modules.account;
 
+import com.giantdwarf.infra.AbstractContainerBaseTest;
 import com.giantdwarf.infra.MockMvcTest;
 import com.giantdwarf.infra.mail.EmailMessage;
 import com.giantdwarf.infra.mail.EmailService;
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @MockMvcTest
-class AccountControllerTest {
+class AccountControllerTest extends AbstractContainerBaseTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired AccountRepository accountRepository;

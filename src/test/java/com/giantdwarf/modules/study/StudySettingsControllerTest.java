@@ -1,6 +1,7 @@
 package com.giantdwarf.modules.study;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.giantdwarf.infra.AbstractContainerBaseTest;
 import com.giantdwarf.infra.MockMvcTest;
 import com.giantdwarf.modules.account.Account;
 import com.giantdwarf.modules.account.AccountFactory;
@@ -26,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @MockMvcTest
-class StudySettingsControllerTest {
+class StudySettingsControllerTest extends AbstractContainerBaseTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired StudyFactory studyFactory;

@@ -1,5 +1,6 @@
 package com.giantdwarf.modules.event;
 
+import com.giantdwarf.infra.AbstractContainerBaseTest;
 import com.giantdwarf.infra.MockMvcTest;
 import com.giantdwarf.modules.account.Account;
 import com.giantdwarf.modules.account.AccountFactory;
@@ -20,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @MockMvcTest
-class EventControllerTest {
+class EventControllerTest extends AbstractContainerBaseTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired EventService eventService;

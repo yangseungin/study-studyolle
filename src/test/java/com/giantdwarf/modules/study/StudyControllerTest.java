@@ -1,5 +1,6 @@
 package com.giantdwarf.modules.study;
 
+import com.giantdwarf.infra.AbstractContainerBaseTest;
 import com.giantdwarf.infra.MockMvcTest;
 import com.giantdwarf.modules.account.Account;
 import com.giantdwarf.modules.account.AccountFactory;
@@ -19,7 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @MockMvcTest
-public class StudyControllerTest {
+public class StudyControllerTest extends AbstractContainerBaseTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired StudyService studyService;

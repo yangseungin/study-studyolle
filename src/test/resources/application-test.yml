@@ -1,0 +1,27 @@
+spring:
+  profiles:
+    active: test
+
+
+#test
+---
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:tc:postgresql:///studytest
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+
+app:
+  host: http://localhost:8080
