@@ -1,4 +1,4 @@
-package com.giantdwarf.infra;
+package com.giantdwarf.infra.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;

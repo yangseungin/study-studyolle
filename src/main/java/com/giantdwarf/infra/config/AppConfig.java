@@ -1,4 +1,4 @@
-package com.giantdwarf.infra;
+package com.giantdwarf.infra.config;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;

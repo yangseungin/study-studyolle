@@ -1,6 +1,6 @@
 package com.giantdwarf.modules.study.event;
 
-import com.giantdwarf.infra.AppProperties;
+import com.giantdwarf.infra.config.AppProperties;
 import com.giantdwarf.infra.mail.EmailMessage;
 import com.giantdwarf.infra.mail.EmailService;
 import com.giantdwarf.modules.account.Account;
