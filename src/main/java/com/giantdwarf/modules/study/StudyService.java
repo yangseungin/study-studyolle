@@ -2,6 +2,7 @@ package com.giantdwarf.modules.study;
 
 import com.giantdwarf.modules.account.Account;
 import com.giantdwarf.modules.study.event.StudyCreatedEvent;
+import com.giantdwarf.modules.study.event.StudyUpdateEvent;
 import com.giantdwarf.modules.tag.Tag;
 import com.giantdwarf.modules.zone.Zone;
 import com.giantdwarf.modules.study.form.StudyDescriptionForm;
@@ -46,7 +47,7 @@ public class StudyService {
 
     public void updateStudyDescription(Study study, StudyDescriptionForm studyDescriptionform) {
         modelMapper.map(studyDescriptionform, study);
-
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디 소개를 수정하였습니다."));
     }
 
     public void updateStudyImage(Study study, String image) {
@@ -113,19 +114,22 @@ public class StudyService {
 
     public void publish(Study study) {
         study.publish();
-        this.eventPublisher.publishEvent(new StudyCreatedEvent(study));
+        eventPublisher.publishEvent(new StudyCreatedEvent(study));
     }
 
     public void close(Study study) {
         study.close();
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디 종료하였습니다."));
     }
 
     public void startRecruit(Study study) {
         study.startRecruit();
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "팀원 모집을 시작하였습니다."));
     }
 
     public void stopRecruit(Study study) {
         study.stopRecruit();
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "팀원 모집을 중단하였습니다."));
     }
 
     public boolean isValidPath(String newPath) {
