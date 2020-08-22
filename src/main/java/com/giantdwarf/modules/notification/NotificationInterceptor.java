@@ -26,7 +26,6 @@ public class NotificationInterceptor implements HandlerInterceptor {
         if (modelAndView != null && !isRedirectView(modelAndView) && !Objects.isNull(authentication) && authentication.getPrincipal() instanceof UserAccount) {
             Account account = ((UserAccount) authentication.getPrincipal()).getAccount();
             long count = notificationRepository.countByAccountAndChecked(account, false);
-            System.out.println("!@$!@$@!"+count);
             modelAndView.addObject("hasNotification", count > 0);
 
         }
