@@ -1,7 +1,9 @@
 package com.giantdwarf.modules.main;
 
 import com.giantdwarf.modules.account.Account;
+import com.giantdwarf.modules.account.AccountRepository;
 import com.giantdwarf.modules.account.CurrentUser;
+import com.giantdwarf.modules.event.EnrollmentRepository;
 import com.giantdwarf.modules.study.Study;
 import com.giantdwarf.modules.study.StudyRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +22,26 @@ import java.util.Objects;
 public class MainController {
 
     private final StudyRepository studyRepository;
+    private final AccountRepository accountRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     @GetMapping("/")
     public String home(@CurrentUser Account account, Model model) {
         if (!Objects.isNull(account)) {
-            model.addAttribute(account);
+            Account accountLoaded = accountRepository.findAccountWithTagsAndZonesById(account.getId());
+            model.addAttribute(accountLoaded);
+            model.addAttribute("enrollmentList", enrollmentRepository.findByAccountAndAcceptedOrderByEnrolledAtDesc(accountLoaded, true));
+            model.addAttribute("studyList", studyRepository.findByAccount(
+                    accountLoaded.getTags(),
+                    accountLoaded.getZones()));
+            model.addAttribute("studyManagerOf",
+                    studyRepository.findFirst5ByManagersContainingAndClosedOrderByPublishedDateTimeDesc(account, false));
+            model.addAttribute("studyMemberOf",
+                    studyRepository.findFirst5ByMembersContainingAndClosedOrderByPublishedDateTimeDesc(account, false));
+            return "index-after-login";
+
         }
-        model.addAttribute("studyList", studyRepository.findFirst9ByPublishedAndClosedOrderByPublishedDateTimeDesc(true,false));
+        model.addAttribute("studyList", studyRepository.findFirst9ByPublishedAndClosedOrderByPublishedDateTimeDesc(true, false));
         return "index";
     }
 
